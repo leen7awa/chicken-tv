@@ -13,10 +13,11 @@ app.use(express.json());
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://chicken-tv.vercel.app'],  // Allow requests from the frontend
-  methods: ['GET', 'POST'],  // Allow only GET and POST methods
+  origin: ['https://chicken-tv.vercel.app'],  // Allow only your production frontend
+  methods: ['GET', 'POST'],  // Allow only the necessary HTTP methods
+  allowedHeaders: ['Content-Type'],  // Allow specific headers like Content-Type
 }));
-
+app.options('*', cors());
 // MongoDB connection setup
 mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
   useNewUrlParser: true,
@@ -80,6 +81,9 @@ wss.on('connection', async (ws) => {
     console.log('Client disconnected');
   });
 });
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 // REST API to retrieve all orders from MongoDB
 app.get('/orders', async (req, res) => {
