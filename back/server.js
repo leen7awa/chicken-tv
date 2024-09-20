@@ -8,6 +8,9 @@ const Order = require('./orderSchema'); // Import the Mongoose order model
 const app = express();
 const port = process.env.PORT || 8081;
 
+// Trust the first proxy (Heroku)
+app.set('trust proxy', 1);
+
 // Middleware to parse JSON requests
 app.use(express.json());
 
@@ -17,7 +20,8 @@ app.use(cors({
   methods: ['GET', 'POST'],  // Allow only the necessary HTTP methods
   allowedHeaders: ['Content-Type'],  // Allow specific headers like Content-Type
 }));
-app.options('*', cors());
+app.options('*', cors());  // Handle preflight requests for all routes
+
 // MongoDB connection setup
 mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
   useNewUrlParser: true,
