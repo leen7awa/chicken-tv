@@ -6,8 +6,8 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
   const [orderNumber, setOrderNumber] = useState('');
   const [orderItems, setOrderItems] = useState('');
   const hasSaved = useRef(false);  // To track if the order has already been saved
-  const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
-
+  // const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
+  const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
   // Get current date and time in a format compatible with MongoDB
   const currentDate = new Date().toLocaleString();
 
