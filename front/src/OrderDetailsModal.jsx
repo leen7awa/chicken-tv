@@ -16,7 +16,7 @@ const OrderDetailsModal = ({ order, onClick }) => {
                 <div className="flex-1 max-h-96 md:max-h-80 sm:max-h-64 overflow-y-auto">
                     <ul>
                         {order.orderItems.map((item, index) => (
-                            <li key={index}>{item}</li>
+                            <li key={index}>{item.name}</li>
                         ))}
                     </ul>
                 </div>

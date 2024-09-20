@@ -13,7 +13,7 @@ app.use(express.json());
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: 'http://localhost:5173',  // Allow requests from the frontend
+  origin: ['http://localhost:5173', 'https://chicken-tv.vercel.app'],  // Allow requests from the frontend
   methods: ['GET', 'POST'],  // Allow only GET and POST methods
 }));
 
