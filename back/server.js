@@ -89,23 +89,20 @@ app.get('/orders', async (req, res) => {
 
 app.post('/createOrder', async (req, res) => {
   const { orderNumber, customerName, orderItems } = req.body;
+  
+  // Send an immediate response to avoid Heroku timeout
+  res.status(202).json({ message: 'Order received and is being processed.' });
 
-  // Validate required fields
-  if (!orderNumber || !customerName || !Array.isArray(orderItems) || orderItems.length === 0) {
-    return res.status(400).json({ error: 'Missing required fields or invalid data' });
-  }
-
+  // Handle the actual database operation in the background
   try {
     const newOrder = new Order(req.body);
     await newOrder.save();
-
     console.log('Order saved successfully:', newOrder);
-    res.status(201).json({ message: 'Order created', order: newOrder });
   } catch (error) {
     console.error('Error while creating order:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Start the server
 server.listen(port, () => {
