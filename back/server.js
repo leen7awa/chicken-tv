@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const mongoose = require('mongoose');
-const cors = require('cors');  // Import the CORS middleware
 const Order = require('./orderSchema'); // Import the Mongoose order model
 
 const app = express();
@@ -13,17 +12,6 @@ app.set('trust proxy', 1);
 
 // Middleware to parse JSON requests
 app.use(express.json());
-
-// CORS Configuration
-app.use(cors({
-  origin: ['https://chicken-tv.vercel.app'],  // Allow only your frontend domain
-  methods: ['GET', 'POST', 'OPTIONS'],  // Ensure OPTIONS is included for preflight requests
-  allowedHeaders: ['Content-Type'],  // Include necessary headers
-  credentials: true  // If credentials (cookies, etc.) are involved
-}));
-
-// Handle preflight (OPTIONS) requests
-app.options('*', cors());
 
 // MongoDB connection setup
 mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
@@ -88,9 +76,6 @@ wss.on('connection', async (ws) => {
     console.log('Client disconnected');
   });
 });
-
-// Handle preflight requests for all routes
-app.options('*', cors());
 
 // REST API to retrieve all orders from MongoDB
 app.get('/orders', async (req, res) => {

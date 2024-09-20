@@ -43,20 +43,22 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
   // Function to submit the order to the backend
   const submitOrderToDatabase = async (orderDetails) => {
     try {
-      // const response = await fetch('http://localhost:8081/createOrder', {
-        const response = await fetch('https://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
+      const response = await fetch('https://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
         method: 'POST',
+        mode: 'no-cors',  // Set the mode to 'no-cors'
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(orderDetails),  // Send the order details as JSON
       });
-      const data = await response.json();
-      console.log('Order submitted successfully to the database:', data);
+  
+      // In no-cors mode, you won't have access to the response
+      console.log('Order submitted successfully, but response is unavailable due to no-cors mode');
     } catch (error) {
       console.error('Error submitting order to the database:', error);
     }
   };
+  
 
   useEffect(() => {
     socket.onclose = () => {
