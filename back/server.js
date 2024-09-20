@@ -14,13 +14,16 @@ app.set('trust proxy', 1);
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Enable CORS for all routes
+// CORS Configuration
 app.use(cors({
-  origin: ['https://chicken-tv.vercel.app'],  // Allow only your production frontend
-  methods: ['GET', 'POST'],  // Allow only the necessary HTTP methods
-  allowedHeaders: ['Content-Type'],  // Allow specific headers like Content-Type
+  origin: ['https://chicken-tv.vercel.app'],  // Allow only your frontend domain
+  methods: ['GET', 'POST', 'OPTIONS'],  // Ensure OPTIONS is included for preflight requests
+  allowedHeaders: ['Content-Type'],  // Include necessary headers
+  credentials: true  // If credentials (cookies, etc.) are involved
 }));
-app.options('*', cors());  // Handle preflight requests for all routes
+
+// Handle preflight (OPTIONS) requests
+app.options('*', cors());
 
 // MongoDB connection setup
 mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
