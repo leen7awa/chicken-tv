@@ -59,7 +59,7 @@ const AddFromURL = () => {
     // Function to submit the order to the backend
     const submitOrderToDatabase = async (orderDetails) => {
         try {
-            const response = await fetch('http://localhost:8081/createOrder', {
+            const response = await fetch('https://localhost:8081/createOrder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

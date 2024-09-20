@@ -44,7 +44,7 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
   const submitOrderToDatabase = async (orderDetails) => {
     try {
       // const response = await fetch('http://localhost:8081/createOrder', {
-        const response = await fetch('http://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
+        const response = await fetch('https://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
