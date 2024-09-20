@@ -1,0 +1,77 @@
+/* Basic styles */
+nav {
+    display: flex;
+    background-color: #1f2937; /* bg-gray-800 */
+    color: #ffa900;
+    max-height: 11rem; /* max-h-44 */
+    padding: 1rem; /* p-4 */
+    justify-content: space-between;
+}
+
+/* Flex properties for the 3 sections */
+nav .flex-1 {
+    flex: 1;
+}
+
+nav .text-center {
+    text-align: center;
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: bold;
+}
+
+/* Center the image or title in the middle */
+nav img {
+    height: 100px;
+    max-height: 100px; /* Set a fixed maximum height */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nav .text-right {
+    text-align: right;
+    font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    nav .text-right {
+        margin-right: 4rem; /* lg:mr-16 */
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav .text-center {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    nav .text-right, nav .flex-1 {
+        text-align: center;
+        margin: 0;
+    }
+
+    nav img {
+        height: 75px; /* Reduce the height on smaller screens */
+        max-height: 75px; /* Ensure it doesn't scale too large */
+    }
+}
+
+@media (max-width: 640px) {
+    nav .text-center {
+        font-size: 1.25rem;
+    }
+
+    nav img {
+        height: 80px; /* Further reduce the height for very small screens */
+        max-height: 80px; /* Ensure it remains controlled */
+    }
+
+    nav .text-right {
+        font-size: 0.875rem;
+    }
+}

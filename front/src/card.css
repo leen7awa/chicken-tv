@@ -1,0 +1,15 @@
+/* Default styles for larger screens */
+.order-card {
+    width: 300px;
+    height: 200px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Media query for screens smaller than 600px */
+@media (max-width: 600px) {
+    .order-card {
+        font-size: smaller;
+        width: 100%;
+        height: auto; /* Let the height adjust based on content */
+    }
+}

@@ -1,0 +1,7 @@
+UNguIsj3lR1DCYZb
+
+mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/
+
+
+heroku link
+const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');

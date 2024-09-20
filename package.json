@@ -1,0 +1,38 @@
+{
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix front\" \"npm run server --prefix back\"",
+    "build": "npm run build --prefix front",
+    "server": "node server.js --prefix back"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "vite": "^5.4.5"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.0",
+    "react-scripts": "^5.0.1"
+  },
+  "name": "chicchickentv",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "description": "",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
