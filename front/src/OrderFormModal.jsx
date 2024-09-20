@@ -7,7 +7,7 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
   const [orderItems, setOrderItems] = useState('');
   const hasSaved = useRef(false);  // To track if the order has already been saved
   // const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
-  const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
+  let socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
   // Get current date and time in a format compatible with MongoDB
   const currentDate = new Date().toLocaleString();
 
@@ -43,7 +43,8 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
   // Function to submit the order to the backend
   const submitOrderToDatabase = async (orderDetails) => {
     try {
-      const response = await fetch('http://localhost:8081/createOrder', {
+      // const response = await fetch('http://localhost:8081/createOrder', {
+        const response = await fetch('http://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,6 +57,16 @@ const OrderFormModal = ({ onClose, onSubmit }) => {
       console.error('Error submitting order to the database:', error);
     }
   };
+
+  useEffect(() => {
+    socket.onclose = () => {
+      // Retry connection after a delay
+      setTimeout(() => {
+        socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
+      }, 3000);  // Retry connection after 3 seconds
+    };
+  }, [socket]);
+  
 
   return (
     <div className="modal-overlay">

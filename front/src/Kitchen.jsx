@@ -4,29 +4,27 @@ import Header from './Header';
 import OrderDetailsModal from './OrderDetailsModal'; // Import your modal component
 import './card.css';
 
-// Initialize WebSocket connection
-const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
+let socket; // Declare socket using let to allow reassignment
 
 const Kitchen = ({ orders, setOrders }) => {
     const [statusFilters, setStatusFilters] = useState([true, true, true]); // Default to show all statuses
     const [showOrderDetails, setShowOrderDetails] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null); // Store the selected order
 
-    const sendMessage = (orderNumber, newStatus) => {
-        const message = JSON.stringify({ orderNumber, status: newStatus });
-        socket.send(message); // Send order number and new status to WebSocket
+    // Function to establish a WebSocket connection
+    const connectWebSocket = () => {
+        socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
 
-        // Update order status in the frontend immediately after sending the WebSocket message
-        setOrders(prevOrders => {
-            const updatedOrders = prevOrders.map(order =>
-                order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
-            );
-            return updatedOrders;
-        });
-    };
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+            // Optional: Start sending ping messages to keep the connection alive
+            const pingInterval = setInterval(() => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000); // Send a ping every 30 seconds
+        };
 
-    useEffect(() => {
-        // WebSocket message handler
         socket.onmessage = (event) => {
             if (event.data instanceof Blob) {
                 const reader = new FileReader();
@@ -40,7 +38,6 @@ const Kitchen = ({ orders, setOrders }) => {
                 };
                 reader.readAsText(event.data);
             } else {
-                // Handle JSON data
                 try {
                     const messageData = JSON.parse(event.data);
                     handleMessage(messageData);
@@ -50,29 +47,55 @@ const Kitchen = ({ orders, setOrders }) => {
             }
         };
 
-        // WebSocket error handling
+        socket.onclose = (event) => {
+            console.error('WebSocket closed: ', event.reason);
+            setTimeout(() => connectWebSocket(), 5000); // Reconnect after 5 seconds
+        };
+
         socket.onerror = (error) => {
             console.error('WebSocket Error: ', error);
         };
+    };
 
-        const handleMessage = (messageData) => {
-            setOrders(prevOrders => {
-                const orderExists = prevOrders.some(order => order.orderNumber === messageData.orderNumber);
+    const sendMessage = (orderNumber, newStatus) => {
+        const message = JSON.stringify({ orderNumber, status: newStatus });
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(message);
+        }
 
-                if (orderExists) {
-                    // Update the order if it already exists
-                    return prevOrders.map(order =>
-                        order.orderNumber === messageData.orderNumber ? { ...order, status: messageData.status } : order
-                    );
-                } else {
-                    // Add the new order if it doesn't exist
-                    return [...prevOrders, messageData];
-                }
-            });
+        setOrders(prevOrders => {
+            const updatedOrders = prevOrders.map(order =>
+                order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
+            );
+            return updatedOrders;
+        });
+    };
+
+    useEffect(() => {
+        // Establish the WebSocket connection when the component mounts
+        connectWebSocket();
+
+        return () => {
+            if (socket) {
+                socket.close(); // Clean up WebSocket connection on unmount
+            }
         };
-    }, [setOrders]);
+    }, []);
 
-    // Filter orders based on the statusFilters array
+    const handleMessage = (messageData) => {
+        setOrders(prevOrders => {
+            const orderExists = prevOrders.some(order => order.orderNumber === messageData.orderNumber);
+
+            if (orderExists) {
+                return prevOrders.map(order =>
+                    order.orderNumber === messageData.orderNumber ? { ...order, status: messageData.status } : order
+                );
+            } else {
+                return [...prevOrders, messageData];
+            }
+        });
+    };
+
     const filteredOrders = orders.filter((order) => statusFilters[order.status]);
 
     return (
@@ -145,7 +168,7 @@ const Kitchen = ({ orders, setOrders }) => {
                 </div>
             </div>
 
-            {showOrderDetails && selectedOrder && ( // Show the order details modal when triggered
+            {showOrderDetails && selectedOrder && (
                 <OrderDetailsModal
                     order={selectedOrder} // Pass the selected order object
                     onClick={() => setShowOrderDetails(false)} // Close the modal
