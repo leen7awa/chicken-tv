@@ -18,11 +18,11 @@ const Kitchen = ({ orders, setOrders }) => {
         socket.onopen = () => {
             console.log('WebSocket connection established');
             // Optional: Start sending ping messages to keep the connection alive
-            const pingInterval = setInterval(() => {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({ type: 'ping' }));
-                }
-            }, 30000); // Send a ping every 30 seconds
+            // const pingInterval = setInterval(() => {
+            //     if (socket.readyState === WebSocket.OPEN) {
+            //         socket.send(JSON.stringify({ type: 'ping' }));
+            //     }
+            // }, 30000); // Send a ping every 30 seconds
         };
 
         socket.onmessage = (event) => {
@@ -48,31 +48,31 @@ const Kitchen = ({ orders, setOrders }) => {
         };
 
         socket.onclose = (event) => {
-            console.error('WebSocket closed: ', event.reason);
+            console.error('Kitchen WebSocket closed: ', event.reason);
             setTimeout(() => connectWebSocket(), 5000); // Reconnect after 5 seconds
         };
 
         socket.onerror = (error) => {
-            console.error('WebSocket Error: ', error);
+            console.error('Kitchen WebSocket Error: ', error);
         };
     };
 
-    const sendMessage = (orderNumber, newStatus) => {
-        const message = JSON.stringify({ orderNumber, status: newStatus });
+    const sendMessage = (updatedOrder) => {
+        const message = JSON.stringify(updatedOrder);
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(message);
         }
-
+    
         setOrders(prevOrders => {
             const updatedOrders = prevOrders.map(order =>
-                order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
+                order.orderNumber === updatedOrder.orderNumber ? updatedOrder : order
             );
             return updatedOrders;
         });
     };
+    
 
     useEffect(() => {
-        // Establish the WebSocket connection when the component mounts
         connectWebSocket();
 
         return () => {
@@ -151,12 +151,13 @@ const Kitchen = ({ orders, setOrders }) => {
 
                                     <div className='flex-shrink flex sm:flex-row md:flex-row justify-between items-end p-4'>
                                         {[{ label: 'בהמתנה', status: 0 }, { label: 'בהכנה', status: 1 }, { label: 'מוכן', status: 2 }].map((button, index) => (
-                                            <button
-                                                key={index}
-                                                className={`px-2 py-1 rounded-2xl font-semibold ${order.status === button.status ? 'text-black bg-red-500 border-2 border-gray-800' : 'bg-slate-300 text-gray-500'}`}
-                                                onClick={() => sendMessage(order.orderNumber, button.status)}>
-                                                {button.label}
-                                            </button>
+                                           <button
+                                           key={index}
+                                           className={`px-2 py-1 rounded-2xl font-semibold ${order.status === button.status ? 'text-black bg-red-500 border-2 border-gray-800' : 'bg-slate-300 text-gray-500'}`}
+                                           onClick={() => sendMessage({ ...order, status: button.status })}>
+                                           {button.label}
+                                       </button>
+                                       
                                         ))}
                                     </div>
                                 </div>

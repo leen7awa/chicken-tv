@@ -58,13 +58,13 @@ const Header = ({ title, imageUrl, onToggleStatuses }) => {
     return (
         <nav className="flex bg-gray-800 text-[#ffa900] max-h-44 p-4 justify-between">
 
-            {/* <button
+            <button className='text-xs text-black'
                 onClick={() => {
                     localStorage.clear();
                     localStorage.removeItem('orders');
                 }}>
-                clear local storage
-            </button> */}
+                clear
+            </button>
 
             <div className="flex-1">
                 {!imageUrl && (

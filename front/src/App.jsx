@@ -15,27 +15,11 @@ function App() {
     2 - ready
     3 - finish  
   */
-  // localStorage.clear();
-  // localStorage.removeItem('orders');
+
   // Function to retrieve orders from local storage
   const getOrdersFromLocalStorage = () => {
     const savedOrders = localStorage.getItem('orders');
-    return savedOrders ? JSON.parse(savedOrders) : [
-      // {
-      //   orderNumber: 1,
-      //   customerName: 'משה',
-      //   orderItems: ['2 בורגר קריספי', 'קולה','עוף','סלט קיסר','סלט עוף'],
-      //   date: "2024-09-14T15:45:30",
-      //   status: 0,
-      // },
-      // {
-      //   orderNumber: 2,
-      //   customerName: 'לין',
-      //   orderItems: ['סלט', 'פסטה', '4 תפוזים'],
-      //   date: "2024-09-14T17:33:12",
-      //   status: 0,
-      // },
-    ];
+    return savedOrders ? JSON.parse(savedOrders) : [];
   };
 
   const [orders, setOrders] = useState(getOrdersFromLocalStorage);

@@ -13,13 +13,19 @@ app.set('trust proxy', 1);
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// MongoDB connection setup
-mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+require('dotenv').config();
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => console.error('MongoDB connection error:', err));;
+
+
+// MongoDB connection setup
+// mongoose.connect('mongodb+srv://leenhawa670:UNguIsj3lR1DCYZb@cluster0.zhlfc.mongodb.net/restaurantOrdersDB?retryWrites=true&w=majority', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// })
+//   .then(() => console.log('Connected to MongoDB'))
+//   .catch(err => console.error('MongoDB connection error:', err));
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -30,6 +36,20 @@ const wss = new WebSocket.Server({ server });
 // WebSocket connection logic
 wss.on('connection', async (ws) => {
   console.log('New client connected');
+
+  wss.on('connection', (ws) => {
+    ws.isAlive = true;
+    ws.on('pong', () => ws.isAlive = true);
+
+    setInterval(() => {
+      wss.clients.forEach((client) => {
+        if (!client.isAlive) return client.terminate();
+        client.isAlive = false;
+        client.ping();
+      });
+    }, 30000); // Ping every 30 seconds
+  });
+
 
   try {
     // Fetch current orders from MongoDB and send to the client
@@ -89,7 +109,7 @@ app.get('/orders', async (req, res) => {
 
 app.post('/createOrder', async (req, res) => {
   const { orderNumber, customerName, orderItems } = req.body;
-  
+
   // Send an immediate response to avoid Heroku timeout
   res.status(202).json({ message: 'Order received and is being processed.' });
 
