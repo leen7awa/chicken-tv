@@ -33,9 +33,12 @@ const server = http.createServer(app);
 // Initialize WebSocket server instance
 const wss = new WebSocket.Server({ server });
 
+let clients = [];
+
 // WebSocket connection logic
 wss.on('connection', async (ws) => {
   console.log('New client connected');
+  clients.push(ws);
 
   wss.on('connection', (ws) => {
     ws.isAlive = true;
@@ -94,6 +97,7 @@ wss.on('connection', async (ws) => {
 
   ws.on('close', () => {
     console.log('Client disconnected');
+    clients = clients.filter(client => client !== ws);
   });
 });
 

@@ -160,17 +160,27 @@ const Counter = ({ orders, setOrders }) => {
                 <ConfirmationModal
                     message={<span dir="rtl">לסיים את ההזמנה?</span>}
                     onConfirm={() => {
-                        // Remove the order from the list and update local storage
+                        // Send a WebSocket message for the order being finished
+                        sendMessage(finishOrderItem.orderNumber, 3);
+
+                        // Update the state and localStorage by removing the finished order
                         setOrders(prevOrders => {
                             const updatedOrders = prevOrders.filter(order => order.orderNumber !== finishOrderItem.orderNumber);
+
+                            // Overwrite local storage with the new updatedOrders array, even if it's empty
                             localStorage.setItem('orders', JSON.stringify(updatedOrders));
+
                             return updatedOrders;
                         });
+
+                        // Close the confirmation modal
                         setShowConfirmation(false);
                     }}
                     onCancel={() => setShowConfirmation(false)}
                 />
             )}
+
+
 
             {showOrderDetails && selectedOrder && ( // Show the order details modal when triggered
                 <OrderDetailsModal

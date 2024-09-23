@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 
 const AddFromURL = () => {
     const [status] = useState(0);  // Default status
     const hasSaved = useRef(false);  // To track if the order is already saved
-    const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
+    const navigate = useNavigate();  // Hook to navigate between routes
+    // const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
+    const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
 
     // Retrieve parameters from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -49,25 +52,30 @@ const AddFromURL = () => {
                     // Save new order to localStorage
                     const updatedOrders = [...existingOrders, newOrder];
                     localStorage.setItem('orders', JSON.stringify(updatedOrders));
+
+                    // Navigate back after 2 seconds
+                    setTimeout(() => {
+                        navigate(-1);
+                    }, 1000);
                 } else {
                     console.log(`Order with orderNumber ${orderNumber} already exists.`);
                 }
             }
         }
-    }, [orderNumber, customerName, orderItems, status, currentDate, socket]);
+    }, [orderNumber, customerName, orderItems, status, currentDate, socket, navigate]);
 
     // Function to submit the order to the backend
     const submitOrderToDatabase = async (orderDetails) => {
         try {
-            const response = await fetch('https://localhost:8081/createOrder', {
+            const response = await fetch('https://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                mode: 'no-cors',  // Use no-cors mode
                 body: JSON.stringify(orderDetails),  // Send the order details as JSON
             });
-            const data = await response.json();
-            console.log('Order submitted successfully to the database:', data);
+            console.log('Order submitted successfully to the database');
         } catch (error) {
             console.error('Error submitting order to the database:', error);
         }
