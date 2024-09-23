@@ -4,7 +4,7 @@ import Header from './Header';
 import OrderDetailsModal from './OrderDetailsModal'; // Import your modal component
 import './card.css';
 
-let socket; // Declare socket using let to allow reassignment
+let socket;
 
 const Kitchen = ({ orders, setOrders }) => {
     const [statusFilters, setStatusFilters] = useState([true, true, true]); // Default to show all statuses
@@ -17,12 +17,6 @@ const Kitchen = ({ orders, setOrders }) => {
 
         socket.onopen = () => {
             console.log('WebSocket connection established');
-            // Optional: Start sending ping messages to keep the connection alive
-            // const pingInterval = setInterval(() => {
-            //     if (socket.readyState === WebSocket.OPEN) {
-            //         socket.send(JSON.stringify({ type: 'ping' }));
-            //     }
-            // }, 30000); // Send a ping every 30 seconds
         };
 
         socket.onmessage = (event) => {
@@ -44,7 +38,7 @@ const Kitchen = ({ orders, setOrders }) => {
                 } catch (error) {
                     console.error("Error processing WebSocket message:", error);
                 }
-            }
+            };
         };
 
         socket.onclose = (event) => {
@@ -57,12 +51,13 @@ const Kitchen = ({ orders, setOrders }) => {
         };
     };
 
+    // Function to send messages to the server (e.g., order status updates)
     const sendMessage = (updatedOrder) => {
         const message = JSON.stringify(updatedOrder);
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(message);
         }
-    
+
         setOrders(prevOrders => {
             const updatedOrders = prevOrders.map(order =>
                 order.orderNumber === updatedOrder.orderNumber ? updatedOrder : order
@@ -70,7 +65,15 @@ const Kitchen = ({ orders, setOrders }) => {
             return updatedOrders;
         });
     };
-    
+
+    // Handle incoming WebSocket messages
+    const handleMessage = (messageData) => {
+        if (messageData.type === 'orders') {
+            setOrders(messageData.data); // Set the orders array received from the server
+        } else if (messageData.type === 'error') {
+            console.error('Error:', messageData.message);
+        }
+    };
 
     useEffect(() => {
         connectWebSocket();
@@ -81,20 +84,6 @@ const Kitchen = ({ orders, setOrders }) => {
             }
         };
     }, []);
-
-    const handleMessage = (messageData) => {
-        setOrders(prevOrders => {
-            const orderExists = prevOrders.some(order => order.orderNumber === messageData.orderNumber);
-
-            if (orderExists) {
-                return prevOrders.map(order =>
-                    order.orderNumber === messageData.orderNumber ? { ...order, status: messageData.status } : order
-                );
-            } else {
-                return [...prevOrders, messageData];
-            }
-        });
-    };
 
     const filteredOrders = orders.filter((order) => statusFilters[order.status]);
 
@@ -151,13 +140,12 @@ const Kitchen = ({ orders, setOrders }) => {
 
                                     <div className='flex-shrink flex sm:flex-row md:flex-row justify-between items-end p-4'>
                                         {[{ label: 'בהמתנה', status: 0 }, { label: 'בהכנה', status: 1 }, { label: 'מוכן', status: 2 }].map((button, index) => (
-                                           <button
-                                           key={index}
-                                           className={`px-2 py-1 rounded-2xl font-semibold ${order.status === button.status ? 'text-black bg-red-500 border-2 border-gray-800' : 'bg-slate-300 text-gray-500'}`}
-                                           onClick={() => sendMessage({ ...order, status: button.status })}>
-                                           {button.label}
-                                       </button>
-                                       
+                                            <button
+                                                key={index}
+                                                className={`px-2 py-1 rounded-2xl font-semibold ${order.status === button.status ? 'text-black bg-red-500 border-2 border-gray-800' : 'bg-slate-300 text-gray-500'}`}
+                                                onClick={() => sendMessage({ ...order, status: button.status })}>
+                                                {button.label}
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
