@@ -40,8 +40,8 @@ const Home = () => {
 
   const openAddFromURL = () => {
     // Open AddFromURL with query parameters in a new window
-    // window.open(`/addurl?orderNumber=14&customerName=גוני&orderItems=פיצה,בורגר,סלט`, '_blank', 'width=800,height=600');
-    window.open(`/addurl`, '_blank', 'width=800,height=600');
+    // window.open(`/addurl?orderNumber=19&customerName=גוני&orderItems=פיצה,בורגר,סלט`, '_blank', 'width=800,height=600');
+    window.open(`/addurl`, '_blank', 'width=300,height=200');
   };
 
   return (

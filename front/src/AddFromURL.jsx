@@ -24,7 +24,7 @@ const AddFromURL = () => {
                 const parsedOrderItems = orderItems.split(',').map(item => ({
                     name: item.trim()  // Only store the name of the item
                 }));
-    
+
                 // Create new order object
                 const newOrder = {
                     orderNumber,
@@ -33,7 +33,7 @@ const AddFromURL = () => {
                     date: currentDate,
                     status,
                 };
-    
+
                 // Prevent multiple submissions
                 hasSaved.current = true;
 
@@ -46,9 +46,9 @@ const AddFromURL = () => {
                 localStorage.setItem('orders', JSON.stringify(updatedOrders));
 
                 // Close window after 1 second
-                setTimeout(() => {
-                    window.close();
-                }, 1000);
+                // setTimeout(() => {
+                window.close();
+                // }, 1000);
             };
 
             // Handle WebSocket errors
