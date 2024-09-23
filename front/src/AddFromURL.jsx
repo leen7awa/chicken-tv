@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom';
 
 const AddFromURL = () => {
     const [status] = useState(0);  // Default status
     const hasSaved = useRef(false);  // To track if the order is already saved
     const navigate = useNavigate();  // Hook to navigate between routes
-    // const socket = new WebSocket('ws://localhost:8081');  // WebSocket connection
-    const socket = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
+    const socket = useRef(null);  // UseRef for WebSocket to persist between renders
 
-    // Retrieve parameters from URL
     const urlParams = new URLSearchParams(window.location.search);
     const orderNumber = urlParams.get('orderNumber');
     const customerName = urlParams.get('customerName');
@@ -17,69 +15,55 @@ const AddFromURL = () => {
     const currentDate = new Date().toLocaleString();  // Get current date and time
 
     useEffect(() => {
-        if (!hasSaved.current) {
-            if (orderNumber && customerName && orderItems) {
+        if (!hasSaved.current && orderNumber && customerName && orderItems) {
+            // Initialize WebSocket
+            socket.current = new WebSocket('wss://chic-chicken-oss-929342691ddb.herokuapp.com/');
+
+            // WebSocket: Wait until the connection is open before sending the message
+            socket.current.onopen = () => {
+                const parsedOrderItems = orderItems.split(',').map(item => ({
+                    name: item.trim()  // Only store the name of the item
+                }));
+    
+                // Create new order object
+                const newOrder = {
+                    orderNumber,
+                    customerName,
+                    orderItems: parsedOrderItems,
+                    date: currentDate,
+                    status,
+                };
+    
+                // Prevent multiple submissions
+                hasSaved.current = true;
+
+                // Send new order through WebSocket
+                socket.current.send(JSON.stringify(newOrder));
+
+                // Save new order to localStorage after WebSocket message is sent
                 const existingOrders = JSON.parse(localStorage.getItem('orders')) || [];
-    
-                const isOrderNumberExists = existingOrders.some(order => order.orderNumber === orderNumber);
-    
-                if (!isOrderNumberExists) {
-                    // Parse the order items and keep only the name
-                    const parsedOrderItems = orderItems.split(',').map(item => ({
-                        name: item.trim()  // Only store the name of the item
-                    }));
-    
-                    // Create new order object
-                    const newOrder = {
-                        orderNumber,
-                        customerName,
-                        orderItems: parsedOrderItems,  // Send only the name for each item
-                        date: currentDate,
-                        status,
-                    };
-    
-                    // Prevent multiple submissions
-                    hasSaved.current = true;
+                const updatedOrders = [...existingOrders, newOrder];
+                localStorage.setItem('orders', JSON.stringify(updatedOrders));
 
-                    // WebSocket: Wait until the connection is open before sending the message
-                    socket.onopen = () => {
-                        socket.send(JSON.stringify(newOrder));  // Send new order through WebSocket
-                    };
-    
-                    // Send the order data to the backend (MongoDB)
-                    submitOrderToDatabase(newOrder);
-    
-                    // Save new order to localStorage
-                    const updatedOrders = [...existingOrders, newOrder];
-                    localStorage.setItem('orders', JSON.stringify(updatedOrders));
+                // Close window after 1 second
+                setTimeout(() => {
+                    window.close();
+                }, 1000);
+            };
 
-                    // Navigate back after 2 seconds
-                    setTimeout(() => {
-                        navigate(-1);
-                    }, 1000);
-                } else {
-                    console.log(`Order with orderNumber ${orderNumber} already exists.`);
+            // Handle WebSocket errors
+            socket.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            // Close WebSocket when the component unmounts
+            return () => {
+                if (socket.current) {
+                    socket.current.close();
                 }
-            }
+            };
         }
-    }, [orderNumber, customerName, orderItems, status, currentDate, socket, navigate]);
-
-    // Function to submit the order to the backend
-    const submitOrderToDatabase = async (orderDetails) => {
-        try {
-            const response = await fetch('https://chic-chicken-oss-929342691ddb.herokuapp.com/createOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                mode: 'no-cors',  // Use no-cors mode
-                body: JSON.stringify(orderDetails),  // Send the order details as JSON
-            });
-            console.log('Order submitted successfully to the database');
-        } catch (error) {
-            console.error('Error submitting order to the database:', error);
-        }
-    };
+    }, [orderNumber, customerName, orderItems, currentDate, status]);
 
     return (
         <div className='bg-slate-300 justify justify-center'>

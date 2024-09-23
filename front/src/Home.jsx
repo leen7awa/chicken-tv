@@ -38,6 +38,12 @@ const Home = () => {
     setModalOpen(false); // Close the modal
   };
 
+  const openAddFromURL = () => {
+    // Open AddFromURL with query parameters in a new window
+    // window.open(`/addurl?orderNumber=14&customerName=גוני&orderItems=פיצה,בורגר,סלט`, '_blank', 'width=800,height=600');
+    window.open(`/addurl`, '_blank', 'width=800,height=600');
+  };
+
   return (
     <>
       <div className="bg-[#ffa900] min-h-screen flex flex-col">
@@ -53,7 +59,8 @@ const Home = () => {
           </button>
           <button
             className="border-2 border-gray-700 rounded-2xl bg-slate-200 h-fit px-8"
-            onClick={() => navigate(`/addurl?orderNumber=11&customerName=גוני&orderItems=פיצה,בורגר,סלט`)}
+            // onClick={() => navigate(`/addurl`)}
+            onClick={openAddFromURL}
           >
             add from url
           </button>
